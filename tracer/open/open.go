@@ -92,7 +92,7 @@ type bpftracer struct {
 	channel chan []byte
 }
 
-// Init returns a new bashreadline tracer.
+// Init returns a new open tracer.
 func Init() (tracer.Tracer, error) {
 	return &bpftracer{
 		channel: make(chan []byte),
@@ -112,7 +112,7 @@ func (p *bpftracer) Load() error {
 	}
 
 	open := "do_sys_open"
-	err = p.module.AttachKprobe(open, openKprobe)
+	err = p.module.AttachKprobe(open, openKprobe, -1)
 	if err != nil {
 		return fmt.Errorf("attach sys_open kprobe: %v", err)
 	}
@@ -122,7 +122,7 @@ func (p *bpftracer) Load() error {
 		return fmt.Errorf("load sys_open kretprobe failed: %v", err)
 	}
 
-	err = p.module.AttachKretprobe(open, openKretprobe)
+	err = p.module.AttachKretprobe(open, openKretprobe, -1)
 	if err != nil {
 		return fmt.Errorf("attach sys_open kretprobe: %v", err)
 	}

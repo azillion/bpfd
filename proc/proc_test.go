@@ -6,7 +6,6 @@ import (
 
 func TestGetContainerIDAndRuntime(t *testing.T) {
 	testcases := map[string]struct {
-		name            string
 		expectedRuntime ContainerRuntime
 		expectedID      string
 		input           string
@@ -170,15 +169,14 @@ func TestGetUserMappings(t *testing.T) {
 
 func TestGetSeccompEnforceMode(t *testing.T) {
 	testcases := map[string]struct {
-		name         string
-		expectedMode SeccompMode
-		input        string
+		expectedModes []SeccompMode
+		input         string
 	}{
 		"empty": {
-			expectedMode: SeccompModeStrict, // since it is enabled by prctl
+			expectedModes: []SeccompMode{SeccompModeStrict, SeccompModeDisabled}, // since it is enabled by prctl
 		},
 		"none": {
-			expectedMode: SeccompModeStrict, // since it is enabled by prctl
+			expectedModes: []SeccompMode{SeccompModeStrict, SeccompModeDisabled}, // since it is enabled by prctl
 			input: `Name:   cat
 Threads:        1
 SigQ:   0/127546
@@ -202,7 +200,7 @@ voluntary_ctxt_switches:        1
 nonvoluntary_ctxt_switches:     1`,
 		},
 		"zero": {
-			expectedMode: SeccompModeDisabled,
+			expectedModes: []SeccompMode{SeccompModeDisabled},
 			input: `Name:   cat
 Threads:        1
 SigQ:   0/127546
@@ -227,7 +225,7 @@ voluntary_ctxt_switches:        1
 nonvoluntary_ctxt_switches:     1`,
 		},
 		"one": {
-			expectedMode: SeccompModeStrict,
+			expectedModes: []SeccompMode{SeccompModeStrict},
 			input: `Name:   cat
 Threads:        1
 SigQ:   0/127546
@@ -252,7 +250,7 @@ voluntary_ctxt_switches:        1
 nonvoluntary_ctxt_switches:     1`,
 		},
 		"two": {
-			expectedMode: SeccompModeFiltering,
+			expectedModes: []SeccompMode{SeccompModeFiltering},
 			input: `Name:   cat
 Threads:        1
 SigQ:   0/127546
@@ -277,7 +275,7 @@ voluntary_ctxt_switches:        1
 nonvoluntary_ctxt_switches:     1`,
 		},
 		"invalid": {
-			expectedMode: SeccompModeStrict, // since it is enabled by prctl
+			expectedModes: []SeccompMode{SeccompModeStrict, SeccompModeDisabled}, // since it is enabled by prctl
 			input: `Name:   cat
 Threads:        1
 SigQ:   0/127546
@@ -305,15 +303,21 @@ nonvoluntary_ctxt_switches:     1`,
 
 	for key, tc := range testcases {
 		mode := getSeccompEnforcingMode(tc.input)
-		if mode != tc.expectedMode {
-			t.Errorf("[%s]: expected mode %q, got %q", key, tc.expectedMode, mode)
+		pass := false
+		for _, expectedMode := range tc.expectedModes {
+			if mode == expectedMode {
+				pass = true
+				break
+			}
+		}
+		if !pass {
+			t.Errorf("[%s]: expected modes %q, got %q", key, tc.expectedModes, mode)
 		}
 	}
 }
 
 func TestGetNoNewPrivileges(t *testing.T) {
 	testcases := map[string]struct {
-		name     string
 		expected bool
 		input    string
 	}{
@@ -425,7 +429,6 @@ nonvoluntary_ctxt_switches:     1`,
 
 func TestGetUIDGID(t *testing.T) {
 	testcases := map[string]struct {
-		name        string
 		expectedUID uint32
 		expectedGID uint32
 		input       string

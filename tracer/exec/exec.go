@@ -143,7 +143,7 @@ type bpftracer struct {
 	argv    map[uint32][]string
 }
 
-// Init returns a new bashreadline tracer.
+// Init returns a new exec tracer.
 func Init() (tracer.Tracer, error) {
 	return &bpftracer{
 		channel: make(chan []byte),
@@ -164,7 +164,7 @@ func (p *bpftracer) Load() error {
 	}
 
 	execve := bpf.GetSyscallFnName("execve")
-	err = p.module.AttachKprobe(execve, execKprobe)
+	err = p.module.AttachKprobe(execve, execKprobe, -1)
 	if err != nil {
 		return fmt.Errorf("attach sys_execve kprobe: %v", err)
 	}
@@ -174,7 +174,7 @@ func (p *bpftracer) Load() error {
 		return fmt.Errorf("load sys_execve kretprobe failed: %v", err)
 	}
 
-	err = p.module.AttachKretprobe(execve, execKretprobe)
+	err = p.module.AttachKretprobe(execve, execKretprobe, -1)
 	if err != nil {
 		return fmt.Errorf("attach sys_execve kretprobe: %v", err)
 	}

@@ -1,4 +1,4 @@
-FROM debian:buster-slim as builder
+FROM debian:stretch-slim as builder
 MAINTAINER Jessica Frazelle <jess@linux.com>
 
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
@@ -37,7 +37,6 @@ RUN apt-get update && apt-get install -y \
 	libluajit-5.1-dev \
 	arping \
 	iperf \
-	netperf \
 	ethtool \
 	devscripts \
 	zlib1g-dev \
@@ -46,7 +45,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Build libbcc
-ENV BCC_VERSION v0.7.0
+ENV BCC_VERSION v0.9.0
 RUN git clone --depth 1 --branch "$BCC_VERSION" https://github.com/iovisor/bcc.git /usr/src/bcc
 WORKDIR /usr/src/bcc
 RUN mkdir build \
@@ -68,7 +67,7 @@ WORKDIR /go/src/github.com/genuinetools/bpfd
 RUN make \
 	&& mv bpfd /usr/bin/bpfd
 
-FROM debian:buster-slim
+FROM debian:stretch-slim
 
 # Add non-free apt sources
 RUN sed -i "s#deb http://deb.debian.org/debian buster main#deb http://deb.debian.org/debian buster main contrib non-free#g" /etc/apt/sources.list

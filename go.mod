@@ -9,7 +9,7 @@ require (
 	github.com/docker/go-units v0.3.3 // indirect
 	github.com/genuinetools/pkg v0.0.0-20181004225747-e152a0f47ee4
 	github.com/golang/protobuf v1.2.0
-	github.com/iovisor/gobpf v0.0.0-20181008194316-68e787d82275
+	github.com/iovisor/gobpf v0.0.0-20190329163444-e0d8d785d368
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/sirupsen/logrus v1.1.1
 	github.com/stevvooe/resumable v0.0.0-20180830230917-22b14a53ba50 // indirect
